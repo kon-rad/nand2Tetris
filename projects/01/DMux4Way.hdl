@@ -1,6 +1,5 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
+// by Konrad Gnat
+// 04/17/2021
 // File name: projects/01/DMux4Way.hdl
 
 /**
@@ -16,7 +15,7 @@ CHIP DMux4Way {
     OUT a, b, c, d;
 
     PARTS:
-    DMux(in=in, sel=sel[1], a=o1, b=o2);
-    DMux(in=o1, sel=sel[0], a=a, b=b);
-    DMux(in=o2, sel=sel[0], a=c, b=d);
+    DMux(in=in, sel=sel[1], a=ab, b=cd);
+    DMux(in=ab, sel=sel[0], a=a, b=b);
+    DMux(in=cd, sel=sel[0], a=c, b=d);
 }
