@@ -1,0 +1,18 @@
+// by Konrad Gnat
+// 04/21/2021
+// File name: projects/02/FullAdder.hdl
+
+/**
+ * Computes the sum of three bits.
+ */
+
+CHIP FullAdder {
+    IN a, b, c;  // 1-bit inputs
+    OUT sum,     // Right bit of a + b + c
+        carry;   // Left bit of a + b + c
+
+    PARTS:
+    HalfAdder(a=a, b=b, sum=sumAB, carry=carryAB);
+    HalfAdder(a=sumAB, b=c, sum=sum, carry=carryABC);
+    HalfAdder(a=carryAB, b=carryABC, sum=carry, carry=carryABCCarry);
+}
