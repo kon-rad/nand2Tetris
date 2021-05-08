@@ -1,6 +1,5 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
+// By Konrad Gnat
+// 5/7/2012
 // File name: projects/03/a/PC.hdl
 
 /**
@@ -16,5 +15,15 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+
+    Inc16(in=loopIn, out=incd);
+
+    Mux16(a=loopIn, b=incd, sel=inc, out=s2);
+
+    Mux16(a=s2, b=in, sel=load, out=s3);
+
+    Mux16(a=s3, b[0..15]=false, sel=reset, out=s4);
+
+    Register(in=s4, load=true, out=out, out=loopIn);
+
 }

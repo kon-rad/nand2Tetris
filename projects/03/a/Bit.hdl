@@ -1,6 +1,5 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
+// By Konrad Gnat
+// 5/6/2012
 // File name: projects/03/a/Bit.hdl
 
 /**
@@ -16,5 +15,4 @@ CHIP Bit {
     PARTS:
     Mux(a=loopIn, b=in, sel=load, out=outMux);
     DFF(in=outMux, out=loopIn, out=out);
-
 }
