@@ -25,5 +25,4 @@ CHIP PC {
     Mux16(a=s3, b[0..15]=false, sel=reset, out=s4);
 
     Register(in=s4, load=true, out=out, out=loopIn);
-
 }
