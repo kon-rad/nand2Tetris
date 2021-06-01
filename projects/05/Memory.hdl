@@ -28,4 +28,16 @@ CHIP Memory {
 
     PARTS:
     // Put your code here:
+    DMux(in=load, sel=address[14], a=ramload, b=screenload);
+
+    RAM16K(in=in, load=ramload, address=address[0..13], out=ramout);
+
+    Keyboard(out=keyboardout);
+    Screen(in=in, load=screenload, address=address[0..12], out=screenout);
+
+    // out = a if sel == 0
+    //       b if sel == 01
+    //       c if sel == 10
+    //       d if sel == 11
+    Mux4Way16(a=ramout, b=ramout, c=screenout, d=keyboardout, sel=address[13..14], out=out);
 }

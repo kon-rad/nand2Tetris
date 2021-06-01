@@ -40,4 +40,86 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+    // if instruction[0] = 0 (a-instruction)
+    // this is loaded into A memory
+    // if it is 1 (c-instruction)
+    // then it is passed to the alu, 
+    // comp = instruction[3..9]
+    // dest = instruction[10..12]
+    // jump = instruction[13..15]
+    // Mux16
+    // DRegister
+    // ARegister
+    // c instruction
+    // instruction[0] - j3 jump if > 0
+    // instruction[1] - j2 jump if = 0
+    // instruction[2] - j1 jump i < 0
+    // instruction[3] - d3 - load destination M RAM[A]
+    // instruction[4] - d2 - load D register
+    // instruction[5] - d1 - load A register
+    // instruction[6] - c6 no
+    // instruction[7] - c5 f 
+    // instruction[8] - c4 ny
+    // instruction[9] - c3 zy
+    // instruction[10] - c2 nx
+    // instruction[11] - c1 zx
+    // instruction[12] - a
+    // instruction[13] - 1
+    // instruction[14] - 1
+    // instruction[15] - 1
+
+    // Figure out what kind of instruction it is
+    Not(in=instruction[15], out=aInst); // if 0 it's an A instruction
+    And(a=true, b=instruction[15], out=cInst); // if 1 it's a C instruction
+    
+    // handle A instruction
+
+    // load A Register
+    And(a=cInst, b=instruction[5], out=cInstLoadA);
+    // mux16 - a if sel = 0, else b
+    Mux16(a=instruction, b=ALUOut, sel=cInst, out=newA);
+    Or(a=aInst, b=cInstLoadA, out=loadAReg);
+    ARegister(in=newA, load=loadAReg, out=A);
+
+    // load D Register
+    And(a=instruction[4], b=cInst, out=loadD);
+    DRegister(in=ALUOut, load=loadD, out=D);
+
+    // ALU
+    Mux16(a=A, b=inM, sel=instruction[12], out=AOrM);
+    And(a=instruction[11], b=true, out=zx);
+    And(a=instruction[10], b=true, out=nx);
+    And(a=instruction[9], b=true, out=zy);
+    And(a=instruction[8], b=true, out=ny);
+    And(a=instruction[7], b=true, out=f);
+    And(a=instruction[6], b=true, out=no);
+    ALU(x=D, y=AOrM, zx=zx, nx=nx, zy=zy, ny=ny, f=f, 
+        no=no, out=ALUOut, zr=zr, ng=ng);
+
+    // zr = output is zero
+    // ng = output is negative
+
+    // should jump
+    Not(in=zr, out=nzr); // not zero !=0
+    Not(in=ng, out=nng); // >=0
+    And(a=nzr, b=nng, out=pos); // >0
+    And(a=instruction[2], b=ng, out=JLT); // <0
+    And(a=instruction[1], b=zr, out=JEQ); // =0
+    And(a=instruction[0], b=pos, out=JGT); // >0
+    Or(a=JLT, b=JEQ, out=JLE); // <=0
+    Or(a=JLE, b=JGT, out=jumpCondition);
+    And(a=cInst, b=jumpCondition, out=shouldJump);
+
+    // output
+    // write M
+    And(a=cInst, b=instruction[3], out=writeM);
+
+    // address M 
+    And16(a=A, b=true, out[0..14]=addressM);
+    
+    // outM
+    And16(a=ALUOut, b=true, out=outM);
+
+    // PC 
+    PC(in=A, load=shouldJump, inc=true, reset=reset, out[0..14]=pc);
 }
