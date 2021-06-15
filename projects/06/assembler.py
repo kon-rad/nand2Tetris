@@ -1,3 +1,4 @@
+import numbers
 
 class Assembler:
 
@@ -30,7 +31,7 @@ class Assembler:
     'A-1': ['1','1','0','0','1','0'],
     'M-1': ['1','1','0','0','1','0'],
     'D+A': ['0','0','0','0','1','0'],
-    'M+A': ['0','0','0','0','1','0'],
+    'D+M': ['0','0','0','0','1','0'],
     'D-A': ['0','1','0','0','1','1'],
     'D-M': ['0','1','0','0','1','1'],
     'A-D': ['0','0','0','1','1','1'],
@@ -49,32 +50,92 @@ class Assembler:
     'JLE': ['1','1','0'],
     'JMP': ['1','1','1'],
   }
+  predefined = {
+    'SP': '0000000000000000',
+    'LCL': '0000000000000001',
+    'ARG': '0000000000000010',
+    'THIS': '0000000000000011',
+    'THAT': '0000000000000100',
+    'SCREEN': '0100000000000000',
+    'KBD': '0110000000000000',
+  }
+  sym_dict = {}
+  var_count = 16
 
   def get_comp(self, comp, cinst):
         if comp in self.computeFields:
           cinst = cinst[0:4] + self.computeFields[comp] + cinst[10:]
         return cinst
 
+  def ignore_line(self, line):
+      if len(line) <= 1 or line[0] == '/':
+        return True
+      return False
+
+  def get_ainst(self, lineVal):
+      if lineVal in self.sym_dict:
+        aVal = self.sym_dict[lineVal]
+        ainst = '{0:016b}'.format(int(aVal))
+        return ainst
+      if lineVal in self.predefined:
+        return self.predefined[lineVal]
+      if lineVal[0] == 'R':
+        ramNum = int(lineVal[1:])
+        if isinstance(ramNum, numbers.Number):
+          ainst = '{0:016b}'.format(int(ramNum))
+          return ainst
+      if lineVal.isnumeric():
+        ainstNum = int(lineVal)
+        ainst = '{0:016b}'.format(int(lineVal))
+        return ainst
+      self.sym_dict[lineVal] = self.var_count
+      ainst = '{0:016b}'.format(self.var_count)
+      self.var_count += 1
+      return ainst
+
   def assemble(self, name):
+    nameArr = name.split("/")
+    fileNameWithExtension = nameArr[len(nameArr) - 1]
+    destFileName = fileNameWithExtension.split(".")[0] + ".hack"
     lines = self.read_file(name)
     count = 0
     assembled = []
-    ml = 0
-    print(lines)
     # 012 3  4 5  6  7  8  9  10 11 12 13 14 15
     # 111 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
+
+    # first pass - get all labels
     for line in lines:
-      if len(line) <= 1 or line[0] == '/':
+      line = line.strip()
+      if self.ignore_line(line):
+        continue;
+      if line[0] == '(':
+        symbol = line[1:-1]
+        self.sym_dict[symbol] = count
+        continue
+      count += 1
+
+    # second pass
+    count = 0
+    for line in lines:
+      line = line.strip()
+      if self.ignore_line(line):
         continue
       line = line.strip('\n')
+      line = line.replace(' ', '')
+      if line[0] == '(':
+        continue
+      parsedLineArr = []
+      for c in line:
+        if c == '/':
+          break
+        parsedLineArr.append(c)
+      line = ''.join(parsedLineArr)
       count += 1
-      print('line: ', line[len(line) - 1])
       compProcessed = False
-      ainst = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
       cinst = ['1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
       if line[0] == '@':
-        ml = '{0:016b}'.format(int(line[1:]))
-        assembled.append(ml + '\n')
+        ainst = self.get_ainst(line[1:])
+        assembled.append(ainst + '\n')
         continue
       if line.find('=') != -1:
         cinstArr = line.split("=")
@@ -90,18 +151,22 @@ class Assembler:
         cinst = self.get_comp(comp, cinst)
         if 'M' in comp:
           cinst[3] = '1'
-        print('cinst: ', cinst, cinstArr)
       if line.find(';') != -1:
         jumpArr = line.split(";")
         jump = jumpArr[1]
         if jump and jump in self.jumpMnemonic:
-          cinst = cinst[0:12] + self.jumpMnemonic[jump]
+          cinst = cinst[0:13] + self.jumpMnemonic[jump]
         if not compProcessed:
-          dest = jumpArr[0]
+          comp = jumpArr[0]
+          cinst = self.get_comp(comp, cinst)
       assembled.append(''.join(cinst) + '\n')
-    self.write_lines(assembled, "Add.hack")
+    self.write_lines(assembled, destFileName)
 
 asmb = Assembler()
 
-asmb.assemble("./add/Add.asm")
+# asmb.assemble("./add/Add.asm")
+# asmb.assemble("./max/Max.asm")
+# asmb.assemble("./pong/PongL.asm")
+# asmb.assemble("./pong/Pong.asm")
+asmb.assemble("./rect/Rect.asm")
 
