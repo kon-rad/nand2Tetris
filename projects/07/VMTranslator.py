@@ -4,10 +4,14 @@ import re
 from os import listdir
 from os.path import isfile, join
 
-class Parser:
-  filePath = ''
-  commands = []
-  comIndex = 0
+# todos:
+# 1. identify what kind of command it is
+# 2. handle push from different memory 
+# 3. handle pop to different memory 
+# 4. handle arithmetic
+# 5. handle equality
+
+class CommandTypes:
   C_ARITHMETIC = 'C_ARITHMETIC'
   C_PUSH = 'C_PUSH'
   C_POP = 'C_POP'
@@ -17,7 +21,35 @@ class Parser:
   C_FUNCTION = 'C_FUNCTION'
   C_RETURN = 'C_RETURN'
   C_CALL = 'C_CALL'
-  ARITHMETIC_COMMANDS = ['add', 'sub', 'neg']
+
+
+class CodeWriter:
+  filePath = ''
+  lines = []
+
+  def __init__(self, filePath):
+    self.filePath = filePath
+
+  def addNewLine(self, line):
+    self.lines.append(line)
+
+  def writeLines(self, lines):
+    filePathArr = self.filePath.split('/')
+    fileName = filePathArr[len(filePathArr) - 1].split('.')[0]
+    destFileName = fileName + ".asm"
+    destFilePath = filePathArr[0, -1] + '/' + destFileName;
+    file = open(destFilePath, 'w')
+    file.writelines(lines)
+    file.close()
+
+  def addComment(self, line):
+    self.lines.append('// ' + line)
+
+class Parser:
+  filePath = ''
+  commands = []
+  comIndex = 0
+  ARITHMETIC_COMMANDS = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
 
   def __init__(self, filePath):
     self.filePath = filePath
@@ -51,39 +83,72 @@ class Parser:
   def commandType(self):
     line = self.commands[self.comIndex]
     if re.match(r'^push ', line):
-      return self.C_PUSH
+      return CommandTypes.C_PUSH
     if re.match(r'^pop ', line):
-      return self.C_POP
-    if line[0, 4] in self.ARITHMETIC_COMMANDS:
-      return self.C_ARITHMETIC
+      return CommandTypes.C_POP
+    if line[0, 4] in self.ARITHMETIC_COMMANDS or line[0, 3] in self.ARITHMETIC_COMMANDS:
+      return CommandTypes.C_ARITHMETIC
 
-  def writeLines(self ,lines, name):
-    file = open(name, 'w')
-    file.writelines(lines)
-    file.close()
+  def getCommand(self):
+    return self.commands[self.comIndex]
+  
+  def advance(self):
+    if self.hasMoreCommands(self):
+      self.comIndex += 1
+
+  def arg1(self):
+    # return argument 1
+    print('arg1')
+
+  def arg2(self):
+    # return argument 2
+    print('arg2')
+  
 
 
+class Main:
+  filePath = ''
+  parser = None
 
-def main():
-    print("args: ", sys.argv)
+  def __init__(self, filePath):
+    self.filePath = filePath
+    self.translate()
+
+  def translate(self):
     if len(sys.argv) != 2:
       print("Provide the path to the file or directory to translate as a single argument")
       return
     
-    argument = sys.argv[1]
-    
-    if os.path.isfile(argument):
+    if os.path.isfile(self.argument):
       print("file")
-      parser = Parser(argument)
-    elif os.path.isdir(argument):
+      self.translateFile(self.argument)
+    elif os.path.isdir(self.argument):
       print("its a dir")
-      for f in listdir(argument):
-        filePath = join(argument, f)
+      for f in listdir(self.argument):
+        filePath = join(self.argument, f)
         if isfile(filePath):
-          parser = Parser(filePath)
-
+          Parser(filePath)
     else:
       print("Please enter a file or directory path as an argument")
+
+  def translateFile(self, file):
+    self.parser = Parser(file)
+    self.writer = CodeWriter(file)
+    while self.parser.hasMorCommands():
+      comType = self.parser.commandType()
+      com = self.parser.getCommand()
+      if comType == CommandTypes.C_PUSH:
+        self.writer.addComment(com)
+        self.writer.addNewLine(com)
+      self.parser.advance()
+      
+    self.writer.writeLines()
+
+
+def main():
+  print("args: ", sys.argv)
+  argument = sys.argv[1]
+  Main(argument)
 
 if __name__ == "__main__":
     main()
