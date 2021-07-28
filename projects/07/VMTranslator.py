@@ -93,7 +93,7 @@ class Parser:
     return self.commands[self.comIndex]
   
   def advance(self):
-    if self.hasMoreCommands(self):
+    if self.hasMoreCommands():
       self.comIndex += 1
 
   def arg1(self):
@@ -119,13 +119,13 @@ class Main:
       print("Provide the path to the file or directory to translate as a single argument")
       return
     
-    if os.path.isfile(self.argument):
+    if os.path.isfile(self.filePath):
       print("file")
-      self.translateFile(self.argument)
-    elif os.path.isdir(self.argument):
+      self.translateFile(self.filePath)
+    elif os.path.isdir(self.filePath):
       print("its a dir")
-      for f in listdir(self.argument):
-        filePath = join(self.argument, f)
+      for f in listdir(self.filePath):
+        filePath = join(self.filePath, f)
         if isfile(filePath):
           Parser(filePath)
     else:
@@ -134,21 +134,18 @@ class Main:
   def translateFile(self, file):
     self.parser = Parser(file)
     self.writer = CodeWriter(file)
-    while self.parser.hasMorCommands():
+    while self.parser.hasMoreCommands():
       comType = self.parser.commandType()
       com = self.parser.getCommand()
       if comType == CommandTypes.C_PUSH:
         self.writer.addComment(com)
         self.writer.addNewLine(com)
       self.parser.advance()
-      
-    self.writer.writeLines()
 
-
+ 
 def main():
   print("args: ", sys.argv)
-  argument = sys.argv[1]
-  Main(argument)
+  Main(sys.argv[1])
 
 if __name__ == "__main__":
-    main()
+  main()
