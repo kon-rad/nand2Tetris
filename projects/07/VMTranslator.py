@@ -122,12 +122,14 @@ class Main:
     if os.path.isfile(self.filePath):
       print("file")
       self.translateFile(self.filePath)
+    # todo: list files in directory with .vm extension, if dir, then call recursively
     elif os.path.isdir(self.filePath):
       print("its a dir")
-      for f in listdir(self.filePath):
-        filePath = join(self.filePath, f)
-        if isfile(filePath):
-          Parser(filePath)
+      for f in os.listdir(self.filePath):
+        fileInDir = join(self.filePath, f)
+        print('inside dir: fileInDir: ', fileInDir, isfile(fileInDir));
+        if isfile(fileInDir):
+          self.translateFile(fileInDir)
     else:
       print("Please enter a file or directory path as an argument")
 
