@@ -29,9 +29,22 @@ class CodeWriter:
 
   def __init__(self, filePath):
     self.filePath = filePath
+    self.initVariables()
+
+  def initVariables(self):
+    initVar = ['// init SP stack pointer variable', '@0', 'D=M', '@sp', 'M=D']
+    self.lines.extend(initVar)
 
   def addNewLine(self, line):
     self.lines.append(line)
+
+  def getStackPointer(self):
+    # this command gets the stack pointer and assigns it's value to A register
+    # use this before using the stack pointer value
+    self.lines.extend(['@sp', 'A=M'])
+  
+  def incrementStackPointer(self):
+    self.lines.extend(['// increment stack pointer','@sp', 'M=M+1'])
 
   def writeLines(self, lines):
     filePathArr = self.filePath.split('/')
@@ -67,6 +80,7 @@ class Parser:
         continue
       if '//' in line:
         command = []
+        # handle lines where there is an in line comment, e.g. add 5 // some comment 
         for c in line:
           if c == '/':
             break
@@ -75,7 +89,7 @@ class Parser:
           self.commands.append(''.join(command))
         continue
       self.commands.append(line.replace('\n', ''))
-      print('all commands:', self.commands)
+    print('all commands:', self.commands)
 
   def hasMoreCommands(self):
     return self.comIndex < len(self.commands) - 1
@@ -104,34 +118,26 @@ class Parser:
     # return argument 2
     print('arg2')
   
-
-
 class Main:
-  filePath = ''
   parser = None
 
   def __init__(self, filePath):
-    self.filePath = filePath
-    self.translate()
+    self.translate(filePath)
 
-  def translate(self):
-    if len(sys.argv) != 2:
-      print("Provide the path to the file or directory to translate as a single argument")
-      return
-    
-    if os.path.isfile(self.filePath):
-      print("file")
-      self.translateFile(self.filePath)
-    # todo: list files in directory with .vm extension, if dir, then call recursively
-    elif os.path.isdir(self.filePath):
-      print("its a dir")
-      for f in os.listdir(self.filePath):
-        fileInDir = join(self.filePath, f)
-        print('inside dir: fileInDir: ', fileInDir, isfile(fileInDir));
-        if isfile(fileInDir):
-          self.translateFile(fileInDir)
+  def translate(self, filePath):
+    if os.path.isfile(filePath):
+      if filePath.endswith('.vm'):
+        print('Translating %s '%(filePath))
+        self.translateFile(filePath)
+      else:
+        print('%s is not a .vm file'%(filePath))
+    elif os.path.isdir(filePath):
+      for f in os.listdir(filePath):
+        fileInDir = join(filePath, f)
+        self.translate(fileInDir)
     else:
-      print("Please enter a file or directory path as an argument")
+      print("Please provide a VM file or directory as a parameter")
+      print("Provided parameter: ", filePath)
 
   def translateFile(self, file):
     self.parser = Parser(file)
@@ -139,15 +145,20 @@ class Main:
     while self.parser.hasMoreCommands():
       comType = self.parser.commandType()
       com = self.parser.getCommand()
+      self.writer.addComment(com)
       if comType == CommandTypes.C_PUSH:
-        self.writer.addComment(com)
         self.writer.addNewLine(com)
       self.parser.advance()
 
  
 def main():
-  print("args: ", sys.argv)
-  Main(sys.argv[1])
+  print("sys.argv: ", sys.argv, len(sys.argv) != 2)
+  if (len(sys.argv) != 2):
+    print("Please provide a VM file or directory as a parameter")
+    print("Parameters: ", sys.argv)
+    return
+  else:
+    Main(sys.argv[1])
 
 if __name__ == "__main__":
   main()
