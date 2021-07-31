@@ -22,6 +22,8 @@ class CommandTypes:
   C_RETURN = 'C_RETURN'
   C_CALL = 'C_CALL'
 
+class MemorySegments:
+  CONSTANT = 'constant'
 
 class CodeWriter:
   filePath = ''
@@ -32,27 +34,62 @@ class CodeWriter:
     self.initVariables()
 
   def initVariables(self):
-    initVar = ['// init SP stack pointer variable', '@0', 'D=M', '@sp', 'M=D']
+    initVar = ['// init sp stack pointer variable', '@0', 'D=M', '@SP', 'M=D']
     self.lines.extend(initVar)
 
   def addNewLine(self, line):
     self.lines.append(line)
 
+  def addPushLine(self, line):
+    lineArray = line.split(' ')
+    if len(lineArray) != 3:
+      raise Exception("Push command has the wrong number of arguments: ", line)
+    memorySegment = lineArray[1]
+    pushVal = lineArray[2]
+    if memorySegment == MemorySegments.CONSTANT:
+      self.lines.extend([f"@{pushVal}", 'D=A'])
+    self.assignDToSP()
+    self.incrementSP()
+
+  def addArithmetic(self, line):
+    lineArray = line.split(' ')
+    print("addArithmetic", line)
+    self.decrementSP()
+    self.assignSPToD()
+    self.decrementSP()
+    self.addDToSP()
+    self.incrementSP()
+
+  def addDToSP(self):
+    self.lines.extend(['// add D to SP', '@SP', 'A=M', 'M=D+M'])
+  
+  def decrementSP(self):
+    self.lines.extend(['// decrement SP', '@SP', 'M=M-1'])
+
+  def assignDToSP(self):
+    self.lines.extend(['// assign D to SP', '@SP', 'A=M', 'M=D'])
+
+  def assignSPToD(self):
+    self.lines.extend(['// assign SP to D', '@SP', 'A=M', 'D=M'])
+  
+  def incrementSP(self):
+    self.lines.extend(['// increment SP', '@SP', 'M=M+1'])
+
   def getStackPointer(self):
     # this command gets the stack pointer and assigns it's value to A register
     # use this before using the stack pointer value
-    self.lines.extend(['@sp', 'A=M'])
+    self.lines.extend(['@SP', 'A=M'])
   
   def incrementStackPointer(self):
-    self.lines.extend(['// increment stack pointer','@sp', 'M=M+1'])
+    self.lines.extend(['// increment stack pointer','@SP', 'M=M+1'])
 
-  def writeLines(self, lines):
+  def writeLines(self):
     filePathArr = self.filePath.split('/')
     fileName = filePathArr[len(filePathArr) - 1].split('.')[0]
     destFileName = fileName + ".asm"
-    destFilePath = filePathArr[0, -1] + '/' + destFileName;
+    destFilePath = '/'.join(filePathArr[0:-1]) + '/' + destFileName;
     file = open(destFilePath, 'w')
-    file.writelines(lines)
+    file.writelines('\n'.join(self.lines))
     file.close()
 
   def addComment(self, line):
@@ -92,7 +129,7 @@ class Parser:
     print('all commands:', self.commands)
 
   def hasMoreCommands(self):
-    return self.comIndex < len(self.commands) - 1
+    return self.comIndex < len(self.commands)
 
   def commandType(self):
     line = self.commands[self.comIndex]
@@ -100,7 +137,7 @@ class Parser:
       return CommandTypes.C_PUSH
     if re.match(r'^pop ', line):
       return CommandTypes.C_POP
-    if line[0, 4] in self.ARITHMETIC_COMMANDS or line[0, 3] in self.ARITHMETIC_COMMANDS:
+    if line[0:4] in self.ARITHMETIC_COMMANDS or line[0:3] in self.ARITHMETIC_COMMANDS:
       return CommandTypes.C_ARITHMETIC
 
   def getCommand(self):
@@ -147,8 +184,11 @@ class Main:
       com = self.parser.getCommand()
       self.writer.addComment(com)
       if comType == CommandTypes.C_PUSH:
-        self.writer.addNewLine(com)
+        self.writer.addPushLine(com)
+      elif comType == CommandTypes.C_ARITHMETIC:
+        self.writer.addArithmetic(com)
       self.parser.advance()
+    self.writer.writeLines()
 
  
 def main():
