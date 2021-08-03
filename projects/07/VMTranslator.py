@@ -34,7 +34,7 @@ class CodeWriter:
     self.initVariables()
 
   def initVariables(self):
-    initVar = ['// init sp stack pointer variable', '@0', 'D=M', '@SP', 'M=D']
+    initVar = ['// init sp stack pointer variable to value that is in RAM[0]', '@0', 'D=M', '@SP', 'M=D']
     self.lines.extend(initVar)
 
   def addNewLine(self, line):
@@ -54,17 +54,32 @@ class CodeWriter:
   def addArithmetic(self, line):
     lineArray = line.split(' ')
     print("addArithmetic", line)
-    self.decrementSP()
+    self.decrementSPAndRemove()
     self.assignSPToD()
-    self.decrementSP()
-    self.addDToSP()
+    self.decrementSPAndRemove()
+    if line == 'add':
+      self.addDToSP()
+    elif line == 'eq':
+      self.isEqDToSP()
     self.incrementSP()
 
   def addDToSP(self):
     self.lines.extend(['// add D to SP', '@SP', 'A=M', 'M=D+M'])
+
+  def isEqDToSP(self):
+    # subtract M from D and set to D
+    self.lines.extend(['// eq D to SP', '@SP', 'A=M', 'D=M-D' ])
+    # D=M-D - if D is zero, they are equal, jump to IS_TRUE
+    self.lines.extend(['@IS_TRUE', 'D;JEQ'])
+    # otherwise it's false, set SP to 0
+    self.lines.extend(['@SP', 'A=M', 'M=0', '@IS_FALSE', '0;JMP'])
+    # it is true, set SP to -1
+    self.lines.extend(['(IS_TRUE)', '@SP', 'A=M', 'M=-1'])
+    # is false - continues
+    self.lines.extend(['(IS_FALSE)'])
   
-  def decrementSP(self):
-    self.lines.extend(['// decrement SP', '@SP', 'M=M-1'])
+  def decrementSPAndRemove(self):
+    self.lines.extend(['// decrement SP and remove', '@SP', 'A=M', 'M=0', '@SP', 'M=M-1'])
 
   def assignDToSP(self):
     self.lines.extend(['// assign D to SP', '@SP', 'A=M', 'M=D'])
