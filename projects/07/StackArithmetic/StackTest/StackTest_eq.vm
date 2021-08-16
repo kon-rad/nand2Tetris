@@ -6,5 +6,5 @@
 // Executes a sequence of arithmetic and logical operations
 // on the stack. 
 push constant 17
-push constant 13
+push constant 17
 eq

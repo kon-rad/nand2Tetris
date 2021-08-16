@@ -11,6 +11,10 @@ from os.path import isfile, join
 # 4. handle arithmetic
 # 5. handle equality
 
+# Notes:
+# when running test scripts, manually set RAM 0 to 256
+# set RAM[0] 256,  // initializes the stack pointer
+
 class CommandTypes:
   C_ARITHMETIC = 'C_ARITHMETIC'
   C_PUSH = 'C_PUSH'
@@ -51,9 +55,9 @@ class CodeWriter:
     self.assignDToSP()
     self.incrementSP()
 
-  def addArithmetic(self, line):
+  def addArithmeticLine(self, line):
     lineArray = line.split(' ')
-    print("addArithmetic", line)
+    print("addArithmeticLine", line)
     self.decrementSPAndRemove()
     self.assignSPToD()
     self.decrementSPAndRemove()
@@ -201,7 +205,7 @@ class Main:
       if comType == CommandTypes.C_PUSH:
         self.writer.addPushLine(com)
       elif comType == CommandTypes.C_ARITHMETIC:
-        self.writer.addArithmetic(com)
+        self.writer.addArithmeticLine(com)
       self.parser.advance()
     self.writer.writeLines()
 
