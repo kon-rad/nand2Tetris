@@ -1,176 +1,8 @@
 // init sp stack pointer variable to value that is in RAM[0]
 @0
-D=M
+D=0
 @SP
 M=D
-// push constant 17
-@17
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// push constant 17
-@17
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// eq
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// assign SP to D
-@SP
-A=M
-D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// eq D to SP
-@SP
-A=M
-D=M-D
-@IS_TRUE_0
-D;JEQ
-@SP
-A=M
-M=0
-@IS_FALSE_0
-0;JMP
-(IS_TRUE_0)
-@SP
-A=M
-M=-1
-(IS_FALSE_0)
-// increment SP
-@SP
-M=M+1
-// push constant 17
-@17
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// push constant 16
-@16
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// eq
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// assign SP to D
-@SP
-A=M
-D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// eq D to SP
-@SP
-A=M
-D=M-D
-@IS_TRUE_1
-D;JEQ
-@SP
-A=M
-M=0
-@IS_FALSE_1
-0;JMP
-(IS_TRUE_1)
-@SP
-A=M
-M=-1
-(IS_FALSE_1)
-// increment SP
-@SP
-M=M+1
-// push constant 16
-@16
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// push constant 17
-@17
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// eq
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// assign SP to D
-@SP
-A=M
-D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// eq D to SP
-@SP
-A=M
-D=M-D
-@IS_TRUE_2
-D;JEQ
-@SP
-A=M
-M=0
-@IS_FALSE_2
-0;JMP
-(IS_TRUE_2)
-@SP
-A=M
-M=-1
-(IS_FALSE_2)
-// increment SP
-@SP
-M=M+1
 // push constant 892
 @892
 D=A
@@ -192,6 +24,174 @@ M=D
 @SP
 M=M+1
 // lt
+// decrement SP and remove
+@SP
+A=M
+M=0
+@SP
+M=M-1
+// assign SP to D
+@SP
+A=M
+D=M
+// decrement SP and remove
+@SP
+A=M
+M=0
+@SP
+M=M-1
+// SP minus D
+@SP
+A=M
+D=M-D
+@IS_FALSE_0
+D;JGE
+@SP
+A=M
+M=-1
+@IS_TRUE_0
+0;JMP
+(IS_FALSE_0)
+@SP
+A=M
+M=0
+(IS_TRUE_0)
+// increment SP
+@SP
+M=M+1
+// push constant 891
+@891
+D=A
+// assign D to SP
+@SP
+A=M
+M=D
+// increment SP
+@SP
+M=M+1
+// push constant 892
+@892
+D=A
+// assign D to SP
+@SP
+A=M
+M=D
+// increment SP
+@SP
+M=M+1
+// lt
+// decrement SP and remove
+@SP
+A=M
+M=0
+@SP
+M=M-1
+// assign SP to D
+@SP
+A=M
+D=M
+// decrement SP and remove
+@SP
+A=M
+M=0
+@SP
+M=M-1
+// SP minus D
+@SP
+A=M
+D=M-D
+@IS_FALSE_1
+D;JGE
+@SP
+A=M
+M=-1
+@IS_TRUE_1
+0;JMP
+(IS_FALSE_1)
+@SP
+A=M
+M=0
+(IS_TRUE_1)
+// increment SP
+@SP
+M=M+1
+// push constant 891
+@891
+D=A
+// assign D to SP
+@SP
+A=M
+M=D
+// increment SP
+@SP
+M=M+1
+// push constant 891
+@891
+D=A
+// assign D to SP
+@SP
+A=M
+M=D
+// increment SP
+@SP
+M=M+1
+// lt
+// decrement SP and remove
+@SP
+A=M
+M=0
+@SP
+M=M-1
+// assign SP to D
+@SP
+A=M
+D=M
+// decrement SP and remove
+@SP
+A=M
+M=0
+@SP
+M=M-1
+// SP minus D
+@SP
+A=M
+D=M-D
+@IS_FALSE_2
+D;JGE
+@SP
+A=M
+M=-1
+@IS_TRUE_2
+0;JMP
+(IS_FALSE_2)
+@SP
+A=M
+M=0
+(IS_TRUE_2)
+// increment SP
+@SP
+M=M+1
+// push constant 32767
+@32767
+D=A
+// assign D to SP
+@SP
+A=M
+M=D
+// increment SP
+@SP
+M=M+1
+// push constant 32766
+@32766
+D=A
+// assign D to SP
+@SP
+A=M
+M=D
+// increment SP
+@SP
+M=M+1
+// gt
 // decrement SP and remove
 @SP
 A=M
@@ -213,7 +213,7 @@ M=M-1
 A=M
 D=M-D
 @IS_FALSE_3
-D;JGE
+D;JLE
 @SP
 A=M
 M=-1
@@ -227,8 +227,8 @@ M=0
 // increment SP
 @SP
 M=M+1
-// push constant 891
-@891
+// push constant 32766
+@32766
 D=A
 // assign D to SP
 @SP
@@ -237,8 +237,8 @@ M=D
 // increment SP
 @SP
 M=M+1
-// push constant 892
-@892
+// push constant 32767
+@32767
 D=A
 // assign D to SP
 @SP
@@ -247,7 +247,7 @@ M=D
 // increment SP
 @SP
 M=M+1
-// lt
+// gt
 // decrement SP and remove
 @SP
 A=M
@@ -269,7 +269,7 @@ M=M-1
 A=M
 D=M-D
 @IS_FALSE_4
-D;JGE
+D;JLE
 @SP
 A=M
 M=-1
@@ -283,8 +283,8 @@ M=0
 // increment SP
 @SP
 M=M+1
-// push constant 891
-@891
+// push constant 32766
+@32766
 D=A
 // assign D to SP
 @SP
@@ -293,8 +293,8 @@ M=D
 // increment SP
 @SP
 M=M+1
-// push constant 891
-@891
+// push constant 32766
+@32766
 D=A
 // assign D to SP
 @SP
@@ -303,7 +303,7 @@ M=D
 // increment SP
 @SP
 M=M+1
-// lt
+// gt
 // decrement SP and remove
 @SP
 A=M
@@ -325,7 +325,7 @@ M=M-1
 A=M
 D=M-D
 @IS_FALSE_5
-D;JGE
+D;JLE
 @SP
 A=M
 M=-1
@@ -336,174 +336,6 @@ M=-1
 A=M
 M=0
 (IS_TRUE_5)
-// increment SP
-@SP
-M=M+1
-// push constant 32767
-@32767
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// push constant 32766
-@32766
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// gt
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// assign SP to D
-@SP
-A=M
-D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// SP minus D
-@SP
-A=M
-D=M-D
-@IS_FALSE_6
-D;JLE
-@SP
-A=M
-M=-1
-@IS_TRUE_6
-0;JMP
-(IS_FALSE_6)
-@SP
-A=M
-M=0
-(IS_TRUE_6)
-// increment SP
-@SP
-M=M+1
-// push constant 32766
-@32766
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// push constant 32767
-@32767
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// gt
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// assign SP to D
-@SP
-A=M
-D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// SP minus D
-@SP
-A=M
-D=M-D
-@IS_FALSE_7
-D;JLE
-@SP
-A=M
-M=-1
-@IS_TRUE_7
-0;JMP
-(IS_FALSE_7)
-@SP
-A=M
-M=0
-(IS_TRUE_7)
-// increment SP
-@SP
-M=M+1
-// push constant 32766
-@32766
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// push constant 32766
-@32766
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// gt
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// assign SP to D
-@SP
-A=M
-D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
-// SP minus D
-@SP
-A=M
-D=M-D
-@IS_FALSE_8
-D;JLE
-@SP
-A=M
-M=-1
-@IS_TRUE_8
-0;JMP
-(IS_FALSE_8)
-@SP
-A=M
-M=0
-(IS_TRUE_8)
 // increment SP
 @SP
 M=M+1

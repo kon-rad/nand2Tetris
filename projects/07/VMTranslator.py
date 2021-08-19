@@ -5,11 +5,7 @@ from os import listdir
 from os.path import isfile, join
 
 # todos:
-# 1. identify what kind of command it is
-# 2. handle push from different memory 
-# 3. handle pop to different memory 
-# 4. handle arithmetic
-# 5. handle equality
+# find out why lt command is failing
 
 # Notes:
 # when running test scripts, manually set RAM 0 to 256
@@ -32,6 +28,7 @@ class MemorySegments:
 class CodeWriter:
   filePath = ''
   lines = []
+  labelCount = 0
 
   def __init__(self, filePath):
     self.filePath = filePath
@@ -61,26 +58,93 @@ class CodeWriter:
     self.decrementSPAndRemove()
     self.assignSPToD()
     self.decrementSPAndRemove()
+    # ARITHMETIC_COMMANDS = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
     if line == 'add':
-      self.addDToSP()
+      self.handleAdd()
+    if line == 'sub':
+      self.handleSub()
+    elif line == 'neq':
+      self.handleNeg()
     elif line == 'eq':
-      self.isEqDToSP()
+      self.handleEq()
+    elif line == 'lt':
+      self.handleLt()
+    elif line == 'gt':
+      self.handleGt()
+    elif line == 'and':
+      self.handleAnd()
+    elif line == 'or':
+      self.handleOr()
+    elif line == 'not':
+      self.handleNot()
     self.incrementSP()
 
-  def addDToSP(self):
+  def handleAdd(self):
     self.lines.extend(['// add D to SP', '@SP', 'A=M', 'M=D+M'])
 
-  def isEqDToSP(self):
+  def handleSub(self):
+    self.lines.extend(['// subtract D from SP', '@SP', 'A=M', 'M=M-D'])
+
+  def handleNeg(self):
+    # subtract D from SP and assign to D
+    self.lines.extend(['// is SP not equal to D', '@SP', 'A=M', 'D=M-D'])
+    # jump if D is not zero
+    self.lines.extend([f'@IS_TRUE_{self.labelCount}', 'D;JNE'])
+    # otherwise set it to false
+    self.lines.extend(['M=0', f'@IS_FALSE_{self.labelCount}', '0:JMP'])
+    # set as true
+    self.lines.extend([f'(IS_TRUE_{self.labelCount}', 'M=-1', f'IS_FALSE_{self.labelCount}'])
+
+  def handleEq(self):
     # subtract M from D and set to D
     self.lines.extend(['// eq D to SP', '@SP', 'A=M', 'D=M-D' ])
     # D=M-D - if D is zero, they are equal, jump to IS_TRUE
-    self.lines.extend(['@IS_TRUE', 'D;JEQ'])
+    self.lines.extend([f'@IS_TRUE_{self.labelCount}', 'D;JEQ'])
     # otherwise it's false, set SP to 0
-    self.lines.extend(['@SP', 'A=M', 'M=0', '@IS_FALSE', '0;JMP'])
+    self.lines.extend(['@SP', 'A=M', 'M=0', f'@IS_FALSE_{self.labelCount}', '0;JMP'])
     # it is true, set SP to -1
-    self.lines.extend(['(IS_TRUE)', '@SP', 'A=M', 'M=-1'])
+    self.lines.extend([f'(IS_TRUE_{self.labelCount})', '@SP', 'A=M', 'M=-1'])
     # is false - continues
-    self.lines.extend(['(IS_FALSE)'])
+    self.lines.extend([f'(IS_FALSE_{self.labelCount})'])
+    self.labelCount += 1
+
+  def handleLt(self):
+    # assuming that D is already loaded with value 1
+    # subtract M from D and set to D
+    self.lines.extend(['// SP minus D', '@SP', 'A=M', 'D=M-D' ])
+    # JGE -> jump if answer (D) is >= 0 jump
+    # todo: bug here
+    self.lines.extend([f'@IS_FALSE_{self.labelCount}', 'D;JGE'])
+    # otherwise it is true that SP is less than D - then continue
+    self.lines.extend(['@SP', 'A=M', 'M=-1', f'@IS_TRUE_{self.labelCount}', '0;JMP'])
+    # handle if answer is false
+    self.lines.extend([f'(IS_FALSE_{self.labelCount})', '@SP', 'A=M', 'M=0'])
+    # is false - continues
+    self.lines.extend([f'(IS_TRUE_{self.labelCount})'])
+    self.labelCount += 1
+
+  def handleGt(self):
+    # assuming that D is already loaded with value 1
+    # subtract M from D and set to D
+    self.lines.extend(['// SP minus D', '@SP', 'A=M', 'D=M-D' ])
+    # jump if answer (D) is <= 0 (JLE)
+    self.lines.extend([f'@IS_FALSE_{self.labelCount}', 'D;JLE'])
+    # otherwise it is true that SP is less than D - then continue
+    self.lines.extend(['@SP', 'A=M', 'M=-1', f'@IS_TRUE_{self.labelCount}', '0;JMP'])
+    # handle if answer is false
+    self.lines.extend([f'(IS_FALSE_{self.labelCount})', '@SP', 'A=M', 'M=0'])
+    # is false - continues
+    self.lines.extend([f'(IS_TRUE_{self.labelCount})'])
+    self.labelCount += 1
+
+  def handleAnd(self):
+    self.lines.extend(['// handle D and SP', '@SP', 'A=M', 'M=D&M'])
+
+  def handleOr(self):
+    self.lines.extend(['// handle D and SP', '@SP', 'A=M', 'M=D|M'])
+
+  def handleNot(self):
+    self.lines.extend(['// handle not D', '@SP', 'A=M', 'M=!D'])
   
   def decrementSPAndRemove(self):
     self.lines.extend(['// decrement SP and remove', '@SP', 'A=M', 'M=0', '@SP', 'M=M-1'])
