@@ -612,6 +612,13 @@ A=M
 M=0
 @SP
 M=M-1
+// subtract D from 0 to negate
+@0
+D=A-D
+@SP
+M=M+1
+A=M
+M=D
 // increment SP
 @SP
 M=M+1
@@ -684,12 +691,6 @@ M=M-1
 @SP
 A=M
 D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
-@SP
-M=M-1
 // handle not D
 @SP
 A=M

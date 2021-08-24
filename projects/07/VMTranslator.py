@@ -4,9 +4,6 @@ import re
 from os import listdir
 from os.path import isfile, join
 
-# todos:
-# find out why lt command is failing
-
 # Notes:
 # when running test scripts, manually set RAM 0 to 256
 # set RAM[0] 256,  // initializes the stack pointer
@@ -29,41 +26,60 @@ class CodeWriter:
   filePath = ''
   lines = []
   labelCount = 0
+  isDev = True
 
   def __init__(self, filePath):
     self.filePath = filePath
     self.initVariables()
 
   def initVariables(self):
-    initVar = ['// init sp stack pointer variable to value that is in RAM[0]', '@0', 'D=M', '@SP', 'M=D']
-    self.lines.extend(initVar)
+    if self.isDev:
+      self.lines.extend(['@256', 'D=A', '@0', 'M=D', '@1015', 'D=A', '@1', 'M=D'])
+    self.lines.extend(['// init SP stack pointer variable to value that is in RAM[0]', '@0', 'D=M', '@SP', 'M=D'])
+    self.lines.extend(['// init LCL stack pointer variable to value that is in RAM[1]', '@1', 'D=M', '@LCL', 'M=D'])
 
   def addNewLine(self, line):
     self.lines.append(line)
 
   def addPushLine(self, line):
-    lineArray = line.split(' ')
-    if len(lineArray) != 3:
+    lineArr = line.split(' ')
+    if len(lineArr) != 3:
       raise Exception("Push command has the wrong number of arguments: ", line)
-    memorySegment = lineArray[1]
-    pushVal = lineArray[2]
+    memorySegment = lineArr[1]
+    pushVal = lineArr[2]
     if memorySegment == MemorySegments.CONSTANT:
       self.lines.extend([f"@{pushVal}", 'D=A'])
     self.assignDToSP()
     self.incrementSP()
 
+  def addPopLine(self, line):
+    lineArr = line.split(' ')
+    if len(lineArr) != 3:
+      raise Exception("Pop command has the wrong number of arguments: ", line)
+    memorySegment = lineArr[1]
+    popVal = lineArr[2]
+
+    if memorySegment == 'local':
+      # get val from LCL
+      # add i to it
+      # set value in SP to it
+      self.decrementSP()
+      self.lines.extend(['@LCL', 'D=M', f'@{popVal}', 'D=D+A', '@temp', 'M=D', '@SP', 'A=M', 'D=M', '@temp', 'A=M', 'M=D'])
+    self.incrementSP()
+
   def addArithmeticLine(self, line):
-    lineArray = line.split(' ')
     print("addArithmeticLine", line)
-    self.decrementSPAndRemove()
+    self.removeSPAndDecrement()
     self.assignSPToD()
-    self.decrementSPAndRemove()
     # ARITHMETIC_COMMANDS = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
+    if line in ['add', 'sub', 'neg', 'eq', 'lt', 'gt', 'and', 'or']:
+      self.removeSPAndDecrement()
+
     if line == 'add':
       self.handleAdd()
-    if line == 'sub':
+    elif line == 'sub':
       self.handleSub()
-    elif line == 'neq':
+    elif line == 'neg':
       self.handleNeg()
     elif line == 'eq':
       self.handleEq()
@@ -85,15 +101,9 @@ class CodeWriter:
   def handleSub(self):
     self.lines.extend(['// subtract D from SP', '@SP', 'A=M', 'M=M-D'])
 
+  # handle negate -y
   def handleNeg(self):
-    # subtract D from SP and assign to D
-    self.lines.extend(['// is SP not equal to D', '@SP', 'A=M', 'D=M-D'])
-    # jump if D is not zero
-    self.lines.extend([f'@IS_TRUE_{self.labelCount}', 'D;JNE'])
-    # otherwise set it to false
-    self.lines.extend(['M=0', f'@IS_FALSE_{self.labelCount}', '0:JMP'])
-    # set as true
-    self.lines.extend([f'(IS_TRUE_{self.labelCount}', 'M=-1', f'IS_FALSE_{self.labelCount}'])
+    self.lines.extend(['// subtract D from 0 to negate', '@0', 'D=A-D', '@SP', 'M=M+1', 'A=M', 'M=D'])
 
   def handleEq(self):
     # subtract M from D and set to D
@@ -146,8 +156,12 @@ class CodeWriter:
   def handleNot(self):
     self.lines.extend(['// handle not D', '@SP', 'A=M', 'M=!D'])
   
-  def decrementSPAndRemove(self):
-    self.lines.extend(['// decrement SP and remove', '@SP', 'A=M', 'M=0', '@SP', 'M=M-1'])
+  def removeSPAndDecrement(self):
+    self.lines.extend(['// decrement SP and remove', '@SP', 'A=M', 'M=0'])
+    self.decrementSP()
+  
+  def decrementSP(self):
+    self.lines.extend(['// decrement SP', '@SP', 'M=M-1'])
 
   def assignDToSP(self):
     self.lines.extend(['// assign D to SP', '@SP', 'A=M', 'M=D'])
@@ -270,9 +284,10 @@ class Main:
         self.writer.addPushLine(com)
       elif comType == CommandTypes.C_ARITHMETIC:
         self.writer.addArithmeticLine(com)
+      elif comType == CommandTypes.C_POP:
+        self.writer.addPopLine(com)
       self.parser.advance()
     self.writer.writeLines()
-
  
 def main():
   print("sys.argv: ", sys.argv, len(sys.argv) != 2)
