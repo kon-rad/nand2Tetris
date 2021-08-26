@@ -21,12 +21,19 @@ class CommandTypes:
 
 class MemorySegments:
   CONSTANT = 'constant'
+  LOCAL = 'local'
+  ARGUMENT = 'argument'
+  THIS = 'this'
+  THAT = 'that'
+
 
 class CodeWriter:
   filePath = ''
   lines = []
   labelCount = 0
   isDev = True
+  segmentsWithPointer = [MemorySegments.LOCAL, MemorySegments.ARGUMENT, MemorySegments.THIS, MemorySegments.THAT]
+  segToPointer = { 'local': '@LCL', 'argument': '@ARG', 'this': '@THIS', 'that': '@THAT' }
 
   def __init__(self, filePath):
     self.filePath = filePath
@@ -34,7 +41,8 @@ class CodeWriter:
 
   def initVariables(self):
     if self.isDev:
-      self.lines.extend(['@256', 'D=A', '@0', 'M=D', '@1015', 'D=A', '@1', 'M=D'])
+      self.lines.extend(['@256', 'D=A', '@0', 'M=D', '@1015', 'D=A', '@1', 'M=D']) # SP, LCL
+      self.lines.extend(['@2015', 'D=A', '@2', 'M=D', '@3015', 'D=A', '@3', 'M=D', '@4015', 'D=A', '@4', 'M=D']) # ARG, THIS, THAT
     self.lines.extend(['// init SP stack pointer variable to value that is in RAM[0]', '@0', 'D=M', '@SP', 'M=D'])
     self.lines.extend(['// init LCL stack pointer variable to value that is in RAM[1]', '@1', 'D=M', '@LCL', 'M=D'])
 
@@ -49,6 +57,9 @@ class CodeWriter:
     pushVal = lineArr[2]
     if memorySegment == MemorySegments.CONSTANT:
       self.lines.extend([f"@{pushVal}", 'D=A'])
+    elif memorySegment in self.segmentsWithPointer:
+      segmentPointer = self.segToPointer[memorySegment]
+      self.lines.extend([segmentPointer, 'D=M', f'@{pushVal}', 'D=D+A', 'A=D', 'D=M', '@SP', 'A=M', 'M=D'])
     self.assignDToSP()
     self.incrementSP()
 
@@ -59,12 +70,13 @@ class CodeWriter:
     memorySegment = lineArr[1]
     popVal = lineArr[2]
 
-    if memorySegment == 'local':
+    if memorySegment in self.segmentsWithPointer:
       # get val from LCL
       # add i to it
       # set value in SP to it
       self.decrementSP()
       self.lines.extend(['@LCL', 'D=M', f'@{popVal}', 'D=D+A', '@temp', 'M=D', '@SP', 'A=M', 'D=M', '@temp', 'A=M', 'M=D'])
+      self.removeSPAndDecrement()
     self.incrementSP()
 
   def addArithmeticLine(self, line):

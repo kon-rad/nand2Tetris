@@ -42,6 +42,13 @@ D=M
 @temp
 A=M
 M=D
+// decrement SP and remove
+@SP
+A=M
+M=0
+// decrement SP
+@SP
+M=M-1
 // increment SP
 @SP
 M=M+1
@@ -55,9 +62,16 @@ M=D
 // increment SP
 @SP
 M=M+1
-// push constant 22
-@22
-D=A
+// push local 98
+@LCL
+D=M
+@98
+D=D+A
+A=D
+D=M
+@SP
+A=M
+M=D
 // assign D to SP
 @SP
 A=M

@@ -8,4 +8,10 @@
 push constant 10
 pop local 98
 push constant 21
-push constant 22
+push local 98
+pop argument 2
+push constant 11
+push argument 2
+push constant 12
+pop this 2
+pop that 2
