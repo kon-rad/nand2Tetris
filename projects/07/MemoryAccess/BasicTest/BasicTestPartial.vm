@@ -9,6 +9,7 @@ push constant 10
 pop local 98
 push constant 21
 push local 98
+// here it breaks - it goes to 1017
 pop argument 2
 push constant 11
 push argument 2

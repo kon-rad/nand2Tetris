@@ -45,6 +45,9 @@ class CodeWriter:
       self.lines.extend(['@2015', 'D=A', '@2', 'M=D', '@3015', 'D=A', '@3', 'M=D', '@4015', 'D=A', '@4', 'M=D']) # ARG, THIS, THAT
     self.lines.extend(['// init SP stack pointer variable to value that is in RAM[0]', '@0', 'D=M', '@SP', 'M=D'])
     self.lines.extend(['// init LCL stack pointer variable to value that is in RAM[1]', '@1', 'D=M', '@LCL', 'M=D'])
+    self.lines.extend(['// init ARG stack pointer variable to value that is in RAM[2]', '@2', 'D=M', '@ARG', 'M=D'])
+    self.lines.extend(['// init THIS stack pointer variable to value that is in RAM[3]', '@3', 'D=M', '@THIS', 'M=D'])
+    self.lines.extend(['// init THAT stack pointer variable to value that is in RAM[4]', '@4', 'D=M', '@THAT', 'M=D'])
 
   def addNewLine(self, line):
     self.lines.append(line)
