@@ -52,6 +52,7 @@ class CodeWriter:
   def addNewLine(self, line):
     self.lines.append(line)
 
+  # todo: do you need to remove element after push?
   def addPushLine(self, line):
     lineArr = line.split(' ')
     if len(lineArr) != 3:
@@ -63,6 +64,9 @@ class CodeWriter:
     elif memorySegment in self.segmentsWithPointer:
       segmentPointer = self.segToPointer[memorySegment]
       self.lines.extend([segmentPointer, 'D=M', f'@{pushVal}', 'D=D+A', 'A=D', 'D=M', '@SP', 'A=M', 'M=D'])
+    elif memorySegment == MemorySegments.STATIC:
+      # todo: implement static
+      self.lines.extend(['@SP'])
     self.assignDToSP()
     self.incrementSP()
 
@@ -78,7 +82,8 @@ class CodeWriter:
       # add i to it
       # set value in SP to it
       self.decrementSP()
-      self.lines.extend(['@LCL', 'D=M', f'@{popVal}', 'D=D+A', '@temp', 'M=D', '@SP', 'A=M', 'D=M', '@temp', 'A=M', 'M=D'])
+      segmentPointer = self.segToPointer[memorySegment]
+      self.lines.extend([segmentPointer, 'D=M', f'@{popVal}', 'D=D+A', '@temp', 'M=D', '@SP', 'A=M', 'D=M', '@temp', 'A=M', 'M=D'])
       self.removeSPAndDecrement()
     self.incrementSP()
 

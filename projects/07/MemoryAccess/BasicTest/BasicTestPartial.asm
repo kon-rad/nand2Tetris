@@ -110,7 +110,7 @@ M=M+1
 // decrement SP
 @SP
 M=M-1
-@LCL
+@ARG
 D=M
 @2
 D=D+A
@@ -173,7 +173,7 @@ M=M+1
 // decrement SP
 @SP
 M=M-1
-@LCL
+@THIS
 D=M
 @2
 D=D+A
@@ -199,7 +199,7 @@ M=M+1
 // decrement SP
 @SP
 M=M-1
-@LCL
+@THAT
 D=M
 @2
 D=D+A
