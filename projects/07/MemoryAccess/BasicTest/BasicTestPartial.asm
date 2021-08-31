@@ -53,21 +53,14 @@ M=D
 // increment SP
 @SP
 M=M+1
-// pop local 98
+// pop static 98
 // decrement SP
 @SP
 M=M-1
-@LCL
-D=M
-@98
-D=D+A
-@temp
-M=D
 @SP
 A=M
 D=M
-@temp
-A=M
+@BasicTestPartial.98
 M=D
 // decrement SP and remove
 @SP
@@ -89,16 +82,9 @@ M=D
 // increment SP
 @SP
 M=M+1
-// push local 98
-@LCL
+// push static 98
+@BasicTestPartial.98
 D=M
-@98
-D=D+A
-A=D
-D=M
-@SP
-A=M
-M=D
 // assign D to SP
 @SP
 A=M
@@ -106,34 +92,8 @@ M=D
 // increment SP
 @SP
 M=M+1
-// pop argument 2
-// decrement SP
-@SP
-M=M-1
-@ARG
-D=M
-@2
-D=D+A
-@temp
-M=D
-@SP
-A=M
-D=M
-@temp
-A=M
-M=D
-// decrement SP and remove
-@SP
-A=M
-M=0
-// decrement SP
-@SP
-M=M-1
-// increment SP
-@SP
-M=M+1
-// push constant 11
-@11
+// push constant 231
+@231
 D=A
 // assign D to SP
 @SP
@@ -142,48 +102,14 @@ M=D
 // increment SP
 @SP
 M=M+1
-// push argument 2
-@ARG
-D=M
-@2
-D=D+A
-A=D
-D=M
-@SP
-A=M
-M=D
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// push constant 12
-@12
-D=A
-// assign D to SP
-@SP
-A=M
-M=D
-// increment SP
-@SP
-M=M+1
-// pop this 2
+// pop static 2
 // decrement SP
 @SP
 M=M-1
-@THIS
-D=M
-@2
-D=D+A
-@temp
-M=D
 @SP
 A=M
 D=M
-@temp
-A=M
+@BasicTestPartial.2
 M=D
 // decrement SP and remove
 @SP
@@ -195,21 +121,14 @@ M=M-1
 // increment SP
 @SP
 M=M+1
-// pop that 2
+// pop static 3
 // decrement SP
 @SP
 M=M-1
-@THAT
-D=M
-@2
-D=D+A
-@temp
-M=D
 @SP
 A=M
 D=M
-@temp
-A=M
+@BasicTestPartial.3
 M=D
 // decrement SP and remove
 @SP
@@ -218,6 +137,26 @@ M=0
 // decrement SP
 @SP
 M=M-1
+// increment SP
+@SP
+M=M+1
+// push static 2
+@BasicTestPartial.2
+D=M
+// assign D to SP
+@SP
+A=M
+M=D
+// increment SP
+@SP
+M=M+1
+// push static 3
+@BasicTestPartial.3
+D=M
+// assign D to SP
+@SP
+A=M
+M=D
 // increment SP
 @SP
 M=M+1

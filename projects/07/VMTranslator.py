@@ -25,18 +25,26 @@ class MemorySegments:
   ARGUMENT = 'argument'
   THIS = 'this'
   THAT = 'that'
-
+  STATIC = 'static'
+  TEMP = 'temp'
+  POINTER = 'pointer'
 
 class CodeWriter:
   filePath = ''
+  fileName = ''
+  fileNameWithExt = ''
   lines = []
   labelCount = 0
-  isDev = True
+  # isDev = True
+  isDev = False
   segmentsWithPointer = [MemorySegments.LOCAL, MemorySegments.ARGUMENT, MemorySegments.THIS, MemorySegments.THAT]
   segToPointer = { 'local': '@LCL', 'argument': '@ARG', 'this': '@THIS', 'that': '@THAT' }
 
   def __init__(self, filePath):
+    filePathArr = filePath.split("/")
     self.filePath = filePath
+    self.fileNameWithExt = filePathArr[-1]
+    self.fileName = self.fileNameWithExt.split(".")[0]
     self.initVariables()
 
   def initVariables(self):
@@ -53,23 +61,37 @@ class CodeWriter:
     self.lines.append(line)
 
   # todo: do you need to remove element after push?
+  # push value from segment to the stack
   def addPushLine(self, line):
     lineArr = line.split(' ')
     if len(lineArr) != 3:
       raise Exception("Push command has the wrong number of arguments: ", line)
     memorySegment = lineArr[1]
     pushVal = lineArr[2]
+    # get value from segment and assign to D
     if memorySegment == MemorySegments.CONSTANT:
       self.lines.extend([f"@{pushVal}", 'D=A'])
     elif memorySegment in self.segmentsWithPointer:
       segmentPointer = self.segToPointer[memorySegment]
-      self.lines.extend([segmentPointer, 'D=M', f'@{pushVal}', 'D=D+A', 'A=D', 'D=M', '@SP', 'A=M', 'M=D'])
+      self.lines.extend([segmentPointer, 'D=M', f'@{pushVal}', 'D=D+A', 'A=D', 'D=M'])
     elif memorySegment == MemorySegments.STATIC:
-      # todo: implement static
-      self.lines.extend(['@SP'])
+      self.lines.extend([f'@{self.fileName}.{pushVal}', 'D=M'])
+    elif memorySegment == MemorySegments.TEMP:
+      if int(pushVal) > 8 or int(pushVal) < 0:
+        raise Exception("Push value to the Temp memory segment can only be from 0-7: ", line)
+      self.lines.extend([f'@{int(pushVal) + 5}', 'D=A'])
+    elif memorySegment == MemorySegments.POINTER:
+      if pushVal == '1':
+        thisOrThat = '@THAT'
+      elif pushVal == '0':
+        thisOrThat = '@THIS'
+      else:
+        raise Exception("Push value to the Pointer memory segment can only be 0 or 1: ", line)
+      self.lines.extend([thisOrThat, 'M=D'])
     self.assignDToSP()
     self.incrementSP()
 
+  # pop value from the stack to the segment
   def addPopLine(self, line):
     lineArr = line.split(' ')
     if len(lineArr) != 3:
@@ -84,6 +106,26 @@ class CodeWriter:
       self.decrementSP()
       segmentPointer = self.segToPointer[memorySegment]
       self.lines.extend([segmentPointer, 'D=M', f'@{popVal}', 'D=D+A', '@temp', 'M=D', '@SP', 'A=M', 'D=M', '@temp', 'A=M', 'M=D'])
+      self.removeSPAndDecrement()
+    elif memorySegment == MemorySegments.STATIC:
+      self.decrementSP()
+      self.lines.extend(['@SP', 'A=M', 'D=M', f'@{self.fileName}.{popVal}', 'M=D'])
+      self.removeSPAndDecrement()
+    elif memorySegment == MemorySegments.TEMP:
+      if int(popVal) > 8 or int(popVal) < 0:
+        raise Exception("Pop value to the Temp memory segment can only be from 0-7: ", line)
+      self.decrementSP()
+      self.lines.extend(['@SP', 'A=M', 'D=M', f'@{int(popVal) + 5}', 'M=D'])
+      self.removeSPAndDecrement()
+    elif memorySegment == MemorySegments.POINTER:
+      if popVal == '1':
+        thisOrThat = '@THAT'
+      elif popVal == '0':
+        thisOrThat = '@THIS'
+      else:
+        raise Exception("Pop value to the Pointer memory segment can only be 0 or 1: ", line)
+      self.decrementSP()
+      self.lines.extend(['@SP', 'A=M', 'D=M', thisOrThat, 'M=D'])
       self.removeSPAndDecrement()
     self.incrementSP()
 
