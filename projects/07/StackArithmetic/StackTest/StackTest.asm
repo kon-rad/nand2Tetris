@@ -1,7 +1,27 @@
-// init sp stack pointer variable to value that is in RAM[0]
+// init SP stack pointer variable to value that is in RAM[0]
 @0
 D=M
 @SP
+M=D
+// init LCL stack pointer variable to value that is in RAM[1]
+@1
+D=M
+@LCL
+M=D
+// init ARG stack pointer variable to value that is in RAM[2]
+@2
+D=M
+@ARG
+M=D
+// init THIS stack pointer variable to value that is in RAM[3]
+@3
+D=M
+@THIS
+M=D
+// init THAT stack pointer variable to value that is in RAM[4]
+@4
+D=M
+@THAT
 M=D
 // push constant 17
 @17
@@ -28,6 +48,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -38,6 +59,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // eq D to SP
@@ -84,6 +106,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -94,6 +117,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // eq D to SP
@@ -140,6 +164,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -150,6 +175,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // eq D to SP
@@ -196,6 +222,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -206,6 +233,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // SP minus D
@@ -252,6 +280,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -262,6 +291,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // SP minus D
@@ -308,6 +338,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -318,6 +349,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // SP minus D
@@ -364,6 +396,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -374,6 +407,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // SP minus D
@@ -420,6 +454,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -430,6 +465,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // SP minus D
@@ -476,6 +512,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -486,6 +523,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // SP minus D
@@ -542,6 +580,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -552,6 +591,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // add D to SP
@@ -576,6 +616,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -586,6 +627,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // subtract D from SP
@@ -600,6 +642,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -610,6 +653,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // subtract D from 0 to negate
@@ -627,6 +671,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -637,6 +682,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // handle D and SP
@@ -661,6 +707,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
@@ -671,6 +718,7 @@ D=M
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // handle D and SP
@@ -685,6 +733,7 @@ M=M+1
 @SP
 A=M
 M=0
+// decrement SP
 @SP
 M=M-1
 // assign SP to D
