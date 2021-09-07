@@ -24,16 +24,6 @@ D=M
 @temp
 A=M
 M=D
-// decrement SP and remove
-@SP
-A=M
-M=0
-// decrement SP
-@SP
-M=M-1
-// increment SP
-@SP
-M=M+1
 // push constant 21
 @21
 D=A
@@ -70,16 +60,6 @@ D=M
 @temp
 A=M
 M=D
-// decrement SP and remove
-@SP
-A=M
-M=0
-// decrement SP
-@SP
-M=M-1
-// increment SP
-@SP
-M=M+1
 // pop argument 1
 // decrement SP
 @SP
@@ -96,16 +76,6 @@ D=M
 @temp
 A=M
 M=D
-// decrement SP and remove
-@SP
-A=M
-M=0
-// decrement SP
-@SP
-M=M-1
-// increment SP
-@SP
-M=M+1
 // push constant 36
 @36
 D=A
@@ -132,16 +102,6 @@ D=M
 @temp
 A=M
 M=D
-// decrement SP and remove
-@SP
-A=M
-M=0
-// decrement SP
-@SP
-M=M-1
-// increment SP
-@SP
-M=M+1
 // push constant 42
 @42
 D=A
@@ -178,16 +138,6 @@ D=M
 @temp
 A=M
 M=D
-// decrement SP and remove
-@SP
-A=M
-M=0
-// decrement SP
-@SP
-M=M-1
-// increment SP
-@SP
-M=M+1
 // pop that 2
 // decrement SP
 @SP
@@ -204,16 +154,6 @@ D=M
 @temp
 A=M
 M=D
-// decrement SP and remove
-@SP
-A=M
-M=0
-// decrement SP
-@SP
-M=M-1
-// increment SP
-@SP
-M=M+1
 // push constant 510
 @510
 D=A
@@ -233,16 +173,6 @@ A=M
 D=M
 @11
 M=D
-// decrement SP and remove
-@SP
-A=M
-M=0
-// decrement SP
-@SP
-M=M-1
-// increment SP
-@SP
-M=M+1
 // push local 0
 @LCL
 D=M
@@ -272,10 +202,6 @@ M=D
 @SP
 M=M+1
 // add
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1
@@ -283,10 +209,6 @@ M=M-1
 @SP
 A=M
 D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1
@@ -312,10 +234,6 @@ M=D
 @SP
 M=M+1
 // sub
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1
@@ -323,10 +241,6 @@ M=M-1
 @SP
 A=M
 D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1
@@ -366,10 +280,6 @@ M=D
 @SP
 M=M+1
 // add
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1
@@ -377,10 +287,6 @@ M=M-1
 @SP
 A=M
 D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1
@@ -392,10 +298,6 @@ M=D+M
 @SP
 M=M+1
 // sub
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1
@@ -403,10 +305,6 @@ M=M-1
 @SP
 A=M
 D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1
@@ -419,7 +317,7 @@ M=M-D
 M=M+1
 // push temp 6
 @11
-D=A
+D=M
 // assign D to SP
 @SP
 A=M
@@ -428,10 +326,6 @@ M=D
 @SP
 M=M+1
 // add
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1
@@ -439,10 +333,6 @@ M=M-1
 @SP
 A=M
 D=M
-// decrement SP and remove
-@SP
-A=M
-M=0
 // decrement SP
 @SP
 M=M-1

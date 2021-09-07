@@ -17,25 +17,15 @@ push constant 45
 pop that 5
 pop that 2
 push constant 510
-// temp segment starts at RAM[5]
 pop temp 6
-// all good up to here - line 188
-// local is in RAM[1]
 push local 0
-// that is in RAM[4]
 push that 5
 add
-// ok
-// argument is in RAM[2]
 push argument 1
-// ok 256 = 34
 sub
-// this is in RAM[3]
 push this 6
 push this 6
 add
-// ok
 sub
-// temp segment starts at RAM[5]
 push temp 6
 add

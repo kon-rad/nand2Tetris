@@ -80,7 +80,7 @@ class CodeWriter:
     elif memorySegment == MemorySegments.TEMP:
       if int(pushVal) > 8 or int(pushVal) < 0:
         raise Exception("Push value to the Temp memory segment can only be from 0-7: ", line)
-      self.lines.extend([f'@{int(pushVal) + 5}', 'D=A'])
+      self.lines.extend([f'@{int(pushVal) + 5}', 'D=M'])
     elif memorySegment == MemorySegments.POINTER:
       if pushVal == '1':
         thisOrThat = '@THAT'
@@ -88,7 +88,7 @@ class CodeWriter:
         thisOrThat = '@THIS'
       else:
         raise Exception("Push value to the Pointer memory segment can only be 0 or 1: ", line)
-      self.lines.extend([thisOrThat, 'M=D'])
+      self.lines.extend([thisOrThat, 'D=M'])
     self.assignDToSP()
     self.incrementSP()
 
@@ -107,17 +107,20 @@ class CodeWriter:
       self.decrementSP()
       segmentPointer = self.segToPointer[memorySegment]
       self.lines.extend([segmentPointer, 'D=M', f'@{popVal}', 'D=D+A', '@temp', 'M=D', '@SP', 'A=M', 'D=M', '@temp', 'A=M', 'M=D'])
-      self.removeSPAndDecrement()
+      # self.removeSPAndDecrement()
+
     elif memorySegment == MemorySegments.STATIC:
       self.decrementSP()
       self.lines.extend(['@SP', 'A=M', 'D=M', f'@{self.fileName}.{popVal}', 'M=D'])
-      self.removeSPAndDecrement()
+      # self.removeSPAndDecrement()
+
     elif memorySegment == MemorySegments.TEMP:
       if int(popVal) > 8 or int(popVal) < 0:
         raise Exception("Pop value to the Temp memory segment can only be from 0-7: ", line)
       self.decrementSP()
       self.lines.extend(['@SP', 'A=M', 'D=M', f'@{int(popVal) + 5}', 'M=D'])
-      self.removeSPAndDecrement()
+      # self.removeSPAndDecrement()
+
     elif memorySegment == MemorySegments.POINTER:
       if popVal == '1':
         thisOrThat = '@THAT'
@@ -127,16 +130,18 @@ class CodeWriter:
         raise Exception("Pop value to the Pointer memory segment can only be 0 or 1: ", line)
       self.decrementSP()
       self.lines.extend(['@SP', 'A=M', 'D=M', thisOrThat, 'M=D'])
-      self.removeSPAndDecrement()
-    self.incrementSP()
+      # self.removeSPAndDecrement()
+    # self.incrementSP()
 
   def addArithmeticLine(self, line):
     print("addArithmeticLine", line)
-    self.removeSPAndDecrement()
+    # self.removeSPAndDecrement()
+    self.decrementSP()
     self.assignSPToD()
-    # ARITHMETIC_COMMANDS = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
+    ARITHMETIC_COMMANDS = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
     if line in ['add', 'sub', 'neg', 'eq', 'lt', 'gt', 'and', 'or']:
-      self.removeSPAndDecrement()
+      self.decrementSP()
+      # self.removeSPAndDecrement()
 
     if line == 'add':
       self.handleAdd()
