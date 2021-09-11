@@ -297,14 +297,6 @@ class Parser:
   def advance(self):
     if self.hasMoreCommands():
       self.comIndex += 1
-
-  def arg1(self):
-    # return argument 1
-    print('arg1')
-
-  def arg2(self):
-    # return argument 2
-    print('arg2')
   
 class Main:
   parser = None
