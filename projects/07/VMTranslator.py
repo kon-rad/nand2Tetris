@@ -18,6 +18,12 @@ class CommandTypes:
   C_FUNCTION = 'C_FUNCTION'
   C_RETURN = 'C_RETURN'
   C_CALL = 'C_CALL'
+  C_IF_GOTO = 'C_IF_GOTO'
+  C_GOTO = 'C_GOTO'
+  C_LABEL = 'C_LABEL'
+  C_CALL = 'C_CALL'
+  C_FUNCTION = 'C_FUNCTION'
+  C_RETURN = 'C_RETURN'
 
 class MemorySegments:
   CONSTANT = 'constant'
@@ -56,11 +62,11 @@ class CodeWriter:
     # self.lines.extend(['// init THIS stack pointer variable to value that is in RAM[3]', '@3', 'D=M', '@THIS', 'M=D'])
     # self.lines.extend(['// init THAT stack pointer variable to value that is in RAM[4]', '@4', 'D=M', '@THAT', 'M=D'])
 
-  def addNewLine(self, line):
+  def writeNewLine(self, line):
     self.lines.append(line)
 
   # push value from segment to the stack
-  def addPushLine(self, line):
+  def writePushLine(self, line):
     lineArr = line.split(' ')
     if len(lineArr) != 3:
       raise Exception("Push command has the wrong number of arguments: ", line)
@@ -90,7 +96,7 @@ class CodeWriter:
     self.incrementSP()
 
   # pop value from the stack to the segment
-  def addPopLine(self, line):
+  def writePopLine(self, line):
     lineArr = line.split(' ')
     if len(lineArr) != 3:
       raise Exception("Pop command has the wrong number of arguments: ", line)
@@ -125,8 +131,8 @@ class CodeWriter:
       self.decrementSP()
       self.lines.extend(['@SP', 'A=M', 'D=M', thisOrThat, 'M=D'])
 
-  def addArithmeticLine(self, line):
-    print("addArithmeticLine", line)
+  def writeArithmeticLine(self, line):
+    print("writeArithmeticLine", line)
     self.decrementSP()
     self.assignSPToD()
     ARITHMETIC_COMMANDS = ['add', 'sub', 'neg', 'eq', 'gt', 'lt', 'and', 'or', 'not']
@@ -134,36 +140,36 @@ class CodeWriter:
       self.decrementSP()
 
     if line == 'add':
-      self.handleAdd()
+      self.writeAdd()
     elif line == 'sub':
-      self.handleSub()
+      self.writeSub()
     elif line == 'neg':
-      self.handleNeg()
+      self.writeNeg()
     elif line == 'eq':
-      self.handleEq()
+      self.writeEq()
     elif line == 'lt':
-      self.handleLt()
+      self.writeLt()
     elif line == 'gt':
-      self.handleGt()
+      self.writeGt()
     elif line == 'and':
-      self.handleAnd()
+      self.writeAnd()
     elif line == 'or':
-      self.handleOr()
+      self.writeOr()
     elif line == 'not':
-      self.handleNot()
+      self.writeNot()
     self.incrementSP()
 
-  def handleAdd(self):
+  def writeAdd(self):
     self.lines.extend(['// add D to SP', '@SP', 'A=M', 'M=D+M'])
 
-  def handleSub(self):
+  def writeSub(self):
     self.lines.extend(['// subtract D from SP', '@SP', 'A=M', 'M=M-D'])
 
-  # handle negate -y
-  def handleNeg(self):
+  # write negate -y
+  def writeNeg(self):
     self.lines.extend(['// subtract D from 0 to negate', '@0', 'D=A-D', '@SP', 'M=M+1', 'A=M', 'M=D'])
 
-  def handleEq(self):
+  def writeEq(self):
     # subtract M from D and set to D
     self.lines.extend(['// eq D to SP', '@SP', 'A=M', 'D=M-D' ])
     # D=M-D - if D is zero, they are equal, jump to IS_TRUE
@@ -176,7 +182,7 @@ class CodeWriter:
     self.lines.extend([f'(IS_FALSE_{self.labelCount})'])
     self.labelCount += 1
 
-  def handleLt(self):
+  def writeLt(self):
     # assuming that D is already loaded with value 1
     # subtract M from D and set to D
     self.lines.extend(['// SP minus D', '@SP', 'A=M', 'D=M-D' ])
@@ -185,13 +191,13 @@ class CodeWriter:
     self.lines.extend([f'@IS_FALSE_{self.labelCount}', 'D;JGE'])
     # otherwise it is true that SP is less than D - then continue
     self.lines.extend(['@SP', 'A=M', 'M=-1', f'@IS_TRUE_{self.labelCount}', '0;JMP'])
-    # handle if answer is false
+    # write if answer is false
     self.lines.extend([f'(IS_FALSE_{self.labelCount})', '@SP', 'A=M', 'M=0'])
     # is false - continues
     self.lines.extend([f'(IS_TRUE_{self.labelCount})'])
     self.labelCount += 1
 
-  def handleGt(self):
+  def writeGt(self):
     # assuming that D is already loaded with value 1
     # subtract M from D and set to D
     self.lines.extend(['// SP minus D', '@SP', 'A=M', 'D=M-D' ])
@@ -199,20 +205,20 @@ class CodeWriter:
     self.lines.extend([f'@IS_FALSE_{self.labelCount}', 'D;JLE'])
     # otherwise it is true that SP is less than D - then continue
     self.lines.extend(['@SP', 'A=M', 'M=-1', f'@IS_TRUE_{self.labelCount}', '0;JMP'])
-    # handle if answer is false
+    # write if answer is false
     self.lines.extend([f'(IS_FALSE_{self.labelCount})', '@SP', 'A=M', 'M=0'])
     # is false - continues
     self.lines.extend([f'(IS_TRUE_{self.labelCount})'])
     self.labelCount += 1
 
-  def handleAnd(self):
-    self.lines.extend(['// handle D and SP', '@SP', 'A=M', 'M=D&M'])
+  def writeAnd(self):
+    self.lines.extend(['// write D and SP', '@SP', 'A=M', 'M=D&M'])
 
-  def handleOr(self):
-    self.lines.extend(['// handle D and SP', '@SP', 'A=M', 'M=D|M'])
+  def writeOr(self):
+    self.lines.extend(['// write D and SP', '@SP', 'A=M', 'M=D|M'])
 
-  def handleNot(self):
-    self.lines.extend(['// handle not D', '@SP', 'A=M', 'M=!D'])
+  def writeNot(self):
+    self.lines.extend(['// write not D', '@SP', 'A=M', 'M=!D'])
   
   def decrementSP(self):
     self.lines.extend(['// decrement SP', '@SP', 'M=M-1'])
@@ -246,6 +252,27 @@ class CodeWriter:
   def addComment(self, line):
     self.lines.append('// ' + line)
 
+  # def setFileName(self, fileName):
+  # def writeInit(self):
+  def writeLabel(self, label):
+    lineArr = label.split(' ')
+    if len(lineArr) != 2:
+      Exception("Error: Incorrect number of parameters in label statement: ", label)
+    labelValue = lineArr[1]
+    self.lines.extend([f'({labelValue})'])
+
+  def writeIfGoto(self, label):
+    lineArr = label.split(' ')
+    if len(lineArr) != 2:
+      Exception("Error: Incorrect number of parameters in if-goto statement: ", label)
+    labelValue = lineArr[1]
+    self.lines.extend(['@SP', ])
+
+  # def writeIf(self, label):
+  # def writeFunction(self, functionName, numVars):
+  # def writeCall(self, functionName, numArgs):
+  # def writeReturn(self):
+
 class Parser:
   filePath = ''
   commands = []
@@ -268,7 +295,7 @@ class Parser:
         continue
       if '//' in line:
         command = []
-        # handle lines where there is an in line comment, e.g. add 5 // some comment 
+        # write lines where there is an in line comment, e.g. add 5 // some comment 
         for c in line:
           if c == '/':
             break
@@ -290,6 +317,19 @@ class Parser:
       return CommandTypes.C_POP
     if line[0:4] in self.ARITHMETIC_COMMANDS or line[0:3] in self.ARITHMETIC_COMMANDS:
       return CommandTypes.C_ARITHMETIC
+    # write goto, if-goto, label, call, function and return
+    if re.match(r'^if-goto ', line):
+      return CommandTypes.C_IF_GOTO
+    if re.match(r'^goto ', line):
+      return CommandTypes.C_GOTO
+    if re.match(r'^label ', line):
+      return CommandTypes.C_LABEL
+    if re.match(r'^call ', line):
+      return CommandTypes.C_CALL
+    if re.match(r'^function ', line):
+      return CommandTypes.C_FUNCTION
+    if re.match(r'^return ', line):
+      return CommandTypes.C_RETURN
 
   def getCommand(self):
     return self.commands[self.comIndex]
@@ -327,11 +367,17 @@ class Main:
       com = self.parser.getCommand()
       self.writer.addComment(com)
       if comType == CommandTypes.C_PUSH:
-        self.writer.addPushLine(com)
+        self.writer.writePushLine(com)
       elif comType == CommandTypes.C_ARITHMETIC:
-        self.writer.addArithmeticLine(com)
+        self.writer.writeArithmeticLine(com)
       elif comType == CommandTypes.C_POP:
-        self.writer.addPopLine(com)
+        self.writer.writePopLine(com)
+      elif comType == CommandTypes.C_LABEL:
+        self.writer.writeLabel(com)
+      elif comType == CommandTypes.C_GOTO:
+        self.writer.writeGoto(com)
+      elif comType == CommandTypes.C_IF_GOTO:
+        self.writer.writeIfGoto(com)
       self.parser.advance()
     self.writer.writeLines()
  
