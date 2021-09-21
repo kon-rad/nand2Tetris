@@ -269,6 +269,13 @@ class CodeWriter:
     self.decrementSP()
     self.lines.extend(['@SP', 'A=M', 'D=M', f'@{labelValue}', 'D;JNE'])
 
+  def writeGoto(self, label):
+    lineArr = label.split(' ')
+    if len(lineArr) != 2:
+      Exception("Error: Incorrect number of parameters in goto statement: ", label)
+    labelValue = lineArr[1]
+    self.lines.extend([f'@{labelValue}', '0;JMP'])
+
   # def writeIf(self, label):
   # def writeFunction(self, functionName, numVars):
   # def writeCall(self, functionName, numArgs):
