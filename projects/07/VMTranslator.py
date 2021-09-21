@@ -266,7 +266,7 @@ class CodeWriter:
     if len(lineArr) != 2:
       Exception("Error: Incorrect number of parameters in if-goto statement: ", label)
     labelValue = lineArr[1]
-    self.lines.extend(['@SP', ])
+    self.lines.extend(['@SP', 'D=M', 'D=D+1', f'@{labelValue}', 'D;JEQ'])
 
   # def writeIf(self, label):
   # def writeFunction(self, functionName, numVars):
