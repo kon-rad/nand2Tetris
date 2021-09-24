@@ -276,8 +276,15 @@ class CodeWriter:
     labelValue = lineArr[1]
     self.lines.extend([f'@{labelValue}', '0;JMP'])
 
-  # def writeIf(self, label):
-  # def writeFunction(self, functionName, numVars):
+  def writeFunction(self, line):
+    lineArr = line.split(' ')
+    if len(lineArr) != 3:
+      Exception("Error: Incorrect number of parameters in function statement: ", line)
+    functionName = lineArr[1]
+    argsNum = lineArr[2]
+    self.lines.extend([f'({functionName})'])
+
+
   # def writeCall(self, functionName, numArgs):
   # def writeReturn(self):
 
@@ -386,6 +393,8 @@ class Main:
         self.writer.writeGoto(com)
       elif comType == CommandTypes.C_IF_GOTO:
         self.writer.writeIfGoto(com)
+      elif comType == CommandTypes.C_FUNCTION:
+        self.writer.writeFunction(com)
       self.parser.advance()
     self.writer.writeLines()
  
