@@ -285,7 +285,20 @@ class CodeWriter:
     self.lines.extend([f'({functionName})'])
 
 
-  # def writeCall(self, functionName, numArgs):
+  def writeCall(self, line):
+    lineArr = line.split(' ')
+    if len(lineArr) != 3:
+      Exception("Error: Incorrect number of parameters in call statement: ", line)
+    functionName = lineArr[1]
+    argsNum = lineArr[2]
+    # push returnlabel 
+    # push the LCL of the caller
+    # push the ARG of the caller
+    # push the THIS of the caller
+    # push the THAT of the caller
+    self.lines.extend([f'({self.fileName}.{functionName})'])
+
+
   # def writeReturn(self):
 
 class Parser:
@@ -395,6 +408,8 @@ class Main:
         self.writer.writeIfGoto(com)
       elif comType == CommandTypes.C_FUNCTION:
         self.writer.writeFunction(com)
+      elif comType == CommandTypes.C_CALL:
+        self.writer.writeCall(com)
       self.parser.advance()
     self.writer.writeLines()
  
