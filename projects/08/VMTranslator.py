@@ -68,7 +68,7 @@ class CodeWriter:
   # push value from segment to the stack
   def writePushLine(self, line):
     lineArr = line.split(' ')
-    if len(lineArr) != 3:
+    if len(lineArr) > 3:
       raise Exception("Push command has the wrong number of arguments: ", line)
     memorySegment = lineArr[1]
     pushVal = lineArr[2]
@@ -292,12 +292,23 @@ class CodeWriter:
     functionName = lineArr[1]
     argsNum = lineArr[2]
     # push returnlabel 
+    retAddress = f'(ret.{self.fileName}.{functionName})'
+    self.writePushLine(f'push {retAddress}')
+    # self.lines.extend([f'(ret.{self.fileName}.{functionName})'])
     # push the LCL of the caller
+    self.writePushLine(f'push LCL')
     # push the ARG of the caller
+    self.writePushLine(f'push ARG')
     # push the THIS of the caller
+    self.writePushLine(f'push THIS')
     # push the THAT of the caller
-    self.lines.extend([f'({self.fileName}.{functionName})'])
-
+    self.writePushLine(f'push THAT')
+    # reposition ARG
+    self.lines.extend(['@SP', 'D=A-5', '@ARG', 'M=D'])
+    # reposition LCL
+    self.lines.extend(['@SP', 'D=M', '@LCL', 'M=D'])
+    # transfer control to the called function
+    self.lines.extend([''])
 
   # def writeReturn(self):
 
