@@ -282,7 +282,13 @@ class CodeWriter:
       Exception("Error: Incorrect number of parameters in function statement: ", line)
     functionName = lineArr[1]
     argsNum = lineArr[2]
+    # declare a label for function entry
     self.lines.extend([f'({functionName})'])
+    # initialize local variables to zero
+    count = int(argsNum)
+    while count > 0:
+      count -= 1
+      self.lines.extend[f'push 0']
 
 
   def writeCall(self, line):
@@ -292,8 +298,8 @@ class CodeWriter:
     functionName = lineArr[1]
     argsNum = lineArr[2]
     # push returnlabel 
-    retAddress = f'(ret.{self.fileName}.{functionName})'
-    self.writePushLine(f'push {retAddress}')
+    returnAddress = f'(ret.{self.fileName}.{functionName})'
+    self.writePushLine(f'push {returnAddress}')
     # self.lines.extend([f'(ret.{self.fileName}.{functionName})'])
     # push the LCL of the caller
     self.writePushLine(f'push LCL')
@@ -308,9 +314,23 @@ class CodeWriter:
     # reposition LCL
     self.lines.extend(['@SP', 'D=M', '@LCL', 'M=D'])
     # transfer control to the called function
-    self.lines.extend([''])
+    self.writeGoto(f'goto {functionName}')
+    # declare a label for the return address
+    self.lines.extend([f'({returnAddress})'])
 
-  # def writeReturn(self):
+  def writeReturn(self):
+    # endFrame is a temporary variable, the LCL value
+    # endFrame = LCL
+    self.lines.extend(['@LCL', 'D=A', '@endFrame', 'A=D'])
+    # get the return address
+    # retAddr = *(endFrame - 5)
+    self.lines.extend('@endFrame', 'D=A', 'D=D-5', '@retAddr', 'M=D')
+    # *ARG = pop()
+    # repositions the return value for the caller
+    self.decrementSP()
+    self.lines.extend(['@SP', 'D=M', '@ARG', 'A=D'])
+    self.decrementSP()
+
 
 class Parser:
   filePath = ''
