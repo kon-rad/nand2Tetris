@@ -310,12 +310,15 @@ class CodeWriter:
     # push the THAT of the caller
     self.writePushLine(f'push THAT')
     # reposition ARG
+    # ARG = SP - 5 - nArgs
     self.lines.extend(['@SP', 'D=A-5', '@ARG', 'M=D'])
     # reposition LCL
+    # LCL = SP
     self.lines.extend(['@SP', 'D=M', '@LCL', 'M=D'])
     # transfer control to the called function
     self.writeGoto(f'goto {functionName}')
     # declare a label for the return address
+    # (returnAddress)
     self.lines.extend([f'({returnAddress})'])
 
   def writeReturn(self):
@@ -330,6 +333,9 @@ class CodeWriter:
     self.decrementSP()
     self.lines.extend(['@SP', 'D=M', '@ARG', 'A=D'])
     self.decrementSP()
+    # restore THAT of the caller
+    # That = *(endFrame - 1)
+    self.lines.extend(['@endFrame', 'D=M-1', '@THAT', ''])
 
 
 class Parser:
