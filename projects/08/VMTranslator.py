@@ -337,7 +337,6 @@ class CodeWriter:
     # That = *(endFrame - 1)
     self.lines.extend(['@endFrame', 'D=M-1', '@THAT', ''])
 
-
 class Parser:
   filePath = ''
   commands = []
