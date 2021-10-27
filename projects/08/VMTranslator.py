@@ -68,7 +68,7 @@ class CodeWriter:
   # push value from segment to the stack
   def writePushLine(self, line):
     lineArr = line.split(' ')
-    if len(lineArr) > 3:
+    if len(lineArr) != 3:
       raise Exception("Push command has the wrong number of arguments: ", line)
     memorySegment = lineArr[1]
     pushVal = lineArr[2]
@@ -288,7 +288,7 @@ class CodeWriter:
     count = int(argsNum)
     while count > 0:
       count -= 1
-      self.lines.extend[f'push 0']
+      self.lines.extend([f'push 0'])
 
 
   def writeCall(self, line):
