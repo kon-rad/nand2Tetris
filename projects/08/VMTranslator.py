@@ -299,6 +299,7 @@ class CodeWriter:
     argsNum = lineArr[2]
     # push returnlabel 
     returnAddress = f'(ret.{self.fileName}.{functionName})'
+    # // todo: fix bug here - throws error for only 2 parameters
     self.writePushLine(f'push {returnAddress}')
     # self.lines.extend([f'(ret.{self.fileName}.{functionName})'])
     # push the LCL of the caller
