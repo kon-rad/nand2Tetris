@@ -293,23 +293,23 @@ class CodeWriter:
 
   def writeCall(self, line):
     lineArr = line.split(' ')
-    if len(lineArr) != 3:
+    if len(lineArr) != 3 or len(lineArr) != 2:
       Exception("Error: Incorrect number of parameters in call statement: ", line)
     functionName = lineArr[1]
     argsNum = lineArr[2]
     # push returnlabel 
     returnAddress = f'(ret.{self.fileName}.{functionName})'
     # // todo: fix bug here - throws error for only 2 parameters
-    self.writePushLine(f'push {returnAddress}')
+    self.lines.extend([f'{returnAddress}'])
     # self.lines.extend([f'(ret.{self.fileName}.{functionName})'])
     # push the LCL of the caller
-    self.writePushLine(f'push LCL')
+    self.lines.extend([f'LCL'])
     # push the ARG of the caller
-    self.writePushLine(f'push ARG')
+    self.lines.extend([f'ARG'])
     # push the THIS of the caller
-    self.writePushLine(f'push THIS')
+    self.lines.extend([f'THIS'])
     # push the THAT of the caller
-    self.writePushLine(f'push THAT')
+    self.lines.extend([f'THAT'])
     # reposition ARG
     # ARG = SP - 5 - nArgs
     self.lines.extend(['@SP', 'D=A-5', '@ARG', 'M=D'])
